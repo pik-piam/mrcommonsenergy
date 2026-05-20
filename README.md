@@ -1,6 +1,6 @@
 # Fundamental REMIND preprocessing functions
 
-R package **mrenergycore**, version **0.1.0**
+R package **mrenergycore**, version **0.2.0**
 
    [![R build status](https://github.com/pik-piam/mrenergycore/workflows/check/badge.svg)](https://github.com/pik-piam/mrenergycore/actions) [![codecov](https://codecov.io/gh/pik-piam/mrenergycore/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrenergycore) 
 
@@ -39,7 +39,7 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 To cite package **mrenergycore** in publications use:
 
-Benke F (2026). "mrenergycore: Fundamental REMIND preprocessing functions." Version: 0.1.0, <https://github.com/pik-piam/mrenergycore>.
+Benke F (2026). "mrenergycore: Fundamental REMIND preprocessing functions." Version: 0.2.0, <https://github.com/pik-piam/mrenergycore>.
 
 A BibTeX entry for LaTeX users is
 
@@ -50,6 +50,6 @@ A BibTeX entry for LaTeX users is
   date = {2026-05-20},
   year = {2026},
   url = {https://github.com/pik-piam/mrenergycore},
-  note = {Version: 0.1.0},
+  note = {Version: 0.2.0},
 }
 ```
