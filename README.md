@@ -47,7 +47,7 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrenergycore: Fundamental REMIND preprocessing functions},
   author = {Falk Benke},
-  date = {2026-05-20},
+  date = {2026-05-21},
   year = {2026},
   url = {https://github.com/pik-piam/mrenergycore},
   note = {Version: 0.2.0},

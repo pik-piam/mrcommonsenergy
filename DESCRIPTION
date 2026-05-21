@@ -2,7 +2,7 @@ Type: Package
 Package: mrenergycore
 Title: Fundamental REMIND preprocessing functions
 Version: 0.2.0
-Date: 2026-05-20
+Date: 2026-05-21
 Authors@R: c(
     person("Falk", "Benke", , "benke@pik-potsdam.de", role = c("aut", "cre"))
   )
