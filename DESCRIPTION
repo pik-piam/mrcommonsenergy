@@ -21,7 +21,10 @@ Imports:
     data.table,
     dplyr,
     magrittr,
+    quitte,
+    tibble,
     tidyr,
+    readxl,
     rlang
 Suggests:
     testthat
