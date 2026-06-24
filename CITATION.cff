@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
-title: 'mrcommonsenergy: Fundamental preprocessing functions for REMIND and other
-  energy models'
-version: 0.3.0
+title: 'mrcommonsenergy: Preprocessing functions for REMIND and other energy models
+  (no landuse data)'
+version: 0.3.1
 date-released: '2026-06-24'
-abstract: Fundamental preprocessing functions for REMIND and other energy models (e.g.
-  EDGE-Transport, EDGE-Buildings).
+abstract: Preprocessing functions for REMIND and other energy models (buildings, transport,
+  industry) not using landuse data.
 authors:
 - family-names: Benke
   given-names: Falk

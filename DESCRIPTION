@@ -1,13 +1,12 @@
 Type: Package
 Package: mrcommonsenergy
-Title: Fundamental preprocessing functions for REMIND and other energy models
-Version: 0.3.0
+Title: Preprocessing functions for REMIND and other energy models (no landuse data)
+Version: 0.3.1
 Date: 2026-06-24
 Authors@R: c(
     person("Falk", "Benke", , "benke@pik-potsdam.de", role = c("aut", "cre"))
   )
-Description: Fundamental preprocessing functions for REMIND and other energy models
-    (e.g. EDGE-Transport, EDGE-Buildings).
+Description: Preprocessing functions for REMIND and other energy models (buildings, transport, industry) not using landuse data.
 License: LGPL-3
 URL: https://github.com/pik-piam/mrcommonsenergy
 BugReports: https://github.com/pik-piam/mrcommonsenergy/issues

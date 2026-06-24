@@ -4,11 +4,11 @@
 \docType{package}
 \name{mrcommonsenergy-package}
 \alias{mrcommonsenergy-package}
-\title{mrcommonsenergy: Fundamental preprocessing functions for REMIND and other energy models}
+\title{mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)}
 \description{
-Fundamental preprocessing functions for REMIND and other energy models (e.g. EDGE-Transport, EDGE-Buildings).
+Preprocessing functions for REMIND and other energy models (buildings, transport, industry) not using landuse data.
 
-Fundamental preprocessing functions for REMIND and other energy models (e.g. EDGE-Transport, EDGE-Buildings).
+Preprocessing functions for REMIND and other energy models (buildings, transport, industry) not using landuse data.
 }
 \seealso{
 Useful links:
