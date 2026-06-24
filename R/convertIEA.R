@@ -35,7 +35,7 @@ convertIEA <- function(x, subtype) {
     # Other non-OECD Asia (IAS) regions to countries
     mappingfile <- toolGetMapping(
       type = "regional", name = "regionmappingIeaOther2016.csv",
-      returnPathOnly = TRUE, where = "mrenergycore"
+      returnPathOnly = TRUE, where = "mrcommonsenergy"
     )
     mapping <- utils::read.csv2(mappingfile, stringsAsFactors = TRUE) %>%
       filter(!(!!sym("CountryCode") %in% getItems(x, dim = 1)))

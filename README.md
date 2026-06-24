@@ -1,13 +1,13 @@
-# Fundamental REMIND preprocessing functions
+# Fundamental preprocessing functions for REMIND and other energy models
 
-R package **mrenergycore**, version **0.2.0**
+R package **mrcommonsenergy**, version **0.3.0**
 
-   [![R build status](https://github.com/pik-piam/mrenergycore/workflows/check/badge.svg)](https://github.com/pik-piam/mrenergycore/actions) [![codecov](https://codecov.io/gh/pik-piam/mrenergycore/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrenergycore) 
+   [![R build status](https://github.com/pik-piam/mrcommonsenergy/workflows/check/badge.svg)](https://github.com/pik-piam/mrcommonsenergy/actions) [![codecov](https://codecov.io/gh/pik-piam/mrcommonsenergy/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrcommonsenergy) 
 
 ## Purpose and Functionality
 
-Provides useful functions and a common structure to all the
-    input data required to run the REMIND of model input data.
+Fundamental preprocessing functions for REMIND and other energy models
+    (e.g. EDGE-Transport, EDGE-Buildings).
 
 
 ## Installation
@@ -22,7 +22,7 @@ The additional repository can be made available permanently by adding the line a
 After that the most recent version of the package can be installed using `install.packages`:
 
 ```r
-install.packages("mrenergycore")
+install.packages("mrcommonsenergy")
 ```
 
 Package updates can be installed using `update.packages` (make sure that the additional repository has been added before running that command):
@@ -37,19 +37,19 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 ## Citation
 
-To cite package **mrenergycore** in publications use:
+To cite package **mrcommonsenergy** in publications use:
 
-Benke F (2026). "mrenergycore: Fundamental REMIND preprocessing functions." Version: 0.2.0, <https://github.com/pik-piam/mrenergycore>.
+Benke F (2026). "mrcommonsenergy: Fundamental preprocessing functions for REMIND and other energy models." Version: 0.3.0, <https://github.com/pik-piam/mrcommonsenergy>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Misc{,
-  title = {mrenergycore: Fundamental REMIND preprocessing functions},
+  title = {mrcommonsenergy: Fundamental preprocessing functions for REMIND and other energy models},
   author = {Falk Benke},
-  date = {2026-06-02},
+  date = {2026-06-24},
   year = {2026},
-  url = {https://github.com/pik-piam/mrenergycore},
-  note = {Version: 0.2.0},
+  url = {https://github.com/pik-piam/mrcommonsenergy},
+  note = {Version: 0.3.0},
 }
 ```
