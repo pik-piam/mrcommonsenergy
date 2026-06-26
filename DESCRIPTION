@@ -1,8 +1,8 @@
 Type: Package
 Package: mrcommonsenergy
 Title: Preprocessing functions for REMIND and other energy models (no landuse data)
-Version: 0.3.1
-Date: 2026-06-24
+Version: 0.3.2
+Date: 2026-06-26
 Authors@R: c(
     person("Falk", "Benke", , "benke@pik-potsdam.de", role = c("aut", "cre"))
   )

@@ -68,10 +68,13 @@ readEEA_EuropeanEnvironmentAgency <- function(subtype) { # nolint: object_name_l
 
     for (s in sheets) {
       tmp <- suppressMessages(
-        suppressWarnings(read_excel(path = "GHG_ETS_ES_Projections_by_sector.xlsx",
-                                    sheet = s, skip = 1, trim_ws = TRUE,
-                                    col_types = c("text", rep("numeric", 22)))) %>%
-          pivot_longer(cols = seq(2, 23, 1))) %>%
+        suppressWarnings(read_excel(
+          path = "GHG_ETS_ES_Projections_by_sector.xlsx",
+          sheet = s, skip = 1, trim_ws = TRUE,
+          col_types = c("text", rep("numeric", 22))
+        )) %>%
+          pivot_longer(cols = seq(2, 23, 1))
+      ) %>%
         mutate("value" = replace_na(suppressWarnings(as.numeric(.data$value)), 0))
       colnames(tmp) <- c("label", "period", "value")
       tmp <- cbind(tmp[!is.na(tmp$value) & tmp$period %in% timeframe, ], region = s)
