@@ -200,13 +200,13 @@ readEU_ReferenceScenario <- function(subtype) { # nolint: object_name_linter.
     sourceFile <- "AppendixRefSce.xls"
     sheets <- excel_sheets(sourceFile)
     sheets <- sheets[-c(1, 2, 3, length(sheets))]
-    noRows <- 12
+    noCols <- 12
     columns <- c("REMIND")
   } else {
     sourceFile <- "ref2020_energy-transport-ghg.xlsx"
     sheets <- excel_sheets(sourceFile)
     sheets <- sheets[-c(1, 2, 3)]
-    noRows <- 11
+    noCols <- 11
     columns <- c("REMIND", "REMIND_2")
   }
 
@@ -218,7 +218,7 @@ readEU_ReferenceScenario <- function(subtype) { # nolint: object_name_linter.
       region <- substr(sheet, start = 1, stop = 2)
       countrySheet <- suppressMessages(read_excel(sourceFile, sheet = sheet, skip = 1))
       # cleaning sheet
-      countrySheet <- countrySheet[, seq(1, noRows)]
+      countrySheet <- countrySheet[, seq(1, noCols)]
       # replace with remind mapping
       countrySheet$REMIND <- mapping[[type]][[column]][-1]
       # removing extra name column
@@ -242,7 +242,7 @@ readEU_ReferenceScenario <- function(subtype) { # nolint: object_name_linter.
   data <- stats::aggregate(. ~ REMIND + region, data = data, FUN = sum)
 
   # long format
-  data <- tidyr::pivot_longer(data, cols = seq(3, 12, 1))
+  data <- tidyr::pivot_longer(data, cols = seq(3, noCols + 1, 1))
   colnames(data) <- c("variable", "region", "period", "value")
 
   # dump contents into magpie
