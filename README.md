@@ -1,8 +1,8 @@
 # Preprocessing functions for REMIND and other energy models (no landuse data)
 
-R package **mrcommonsenergy**, version **0.3.2**
+R package **mrcommonsenergy**, version **0.3.3**
 
-   [![R build status](https://github.com/pik-piam/mrcommonsenergy/workflows/check/badge.svg)](https://github.com/pik-piam/mrcommonsenergy/actions) [![codecov](https://codecov.io/gh/pik-piam/mrcommonsenergy/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrcommonsenergy) 
+   [![R build status](https://github.com/pik-piam/mrcommonsenergy/workflows/check/badge.svg)](https://github.com/pik-piam/mrcommonsenergy/actions) [![codecov](https://codecov.io/gh/pik-piam/mrcommonsenergy/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrcommonsenergy) [![r-universe](https://pik-piam.r-universe.dev/badges/mrcommonsenergy)](https://pik-piam.r-universe.dev/builds)
 
 ## Purpose and Functionality
 
@@ -38,7 +38,7 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 To cite package **mrcommonsenergy** in publications use:
 
-Benke F (2026). "mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)." Version: 0.3.2, <https://github.com/pik-piam/mrcommonsenergy>.
+Benke F (2026). "mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)." Version: 0.3.3, <https://github.com/pik-piam/mrcommonsenergy>.
 
 A BibTeX entry for LaTeX users is
 
@@ -46,9 +46,9 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)},
   author = {Falk Benke},
-  date = {2026-06-26},
+  date = {2026-06-27},
   year = {2026},
   url = {https://github.com/pik-piam/mrcommonsenergy},
-  note = {Version: 0.3.2},
+  note = {Version: 0.3.3},
 }
 ```
