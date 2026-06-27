@@ -65,7 +65,7 @@ readEurostatEmissionsLatest <- function() {
     "N2O_native", "N2O", "NF3", "PFC", "SF6"
   )
 
-  sectorMap <- toolGetMapping("EurostatCRFLabels.csv", type = "sectoral", where = "mrcommons")
+  sectorMap <- toolGetMapping("EurostatCRFLabels.csv", type = "sectoral", where = "mrcommonsenergy")
   sectorMap <- sectorMap[match(getNames(x, dim = 2), sectorMap$crf), ]
   getNames(x, dim = 2) <- sectorMap[, "label"]
 

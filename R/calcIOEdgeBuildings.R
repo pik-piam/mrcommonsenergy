@@ -50,7 +50,7 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
 
   mapping <- toolGetMapping(type = "sectoral",
                             name = "structuremappingIO_outputs.csv",
-                            where = "mrenergy", returnPathOnly = TRUE) %>%
+                            where = "mrcommonsenergy", returnPathOnly = TRUE) %>%
     read.csv2(stringsAsFactors = FALSE, na.strings = "") %>%
     select(all_of(c("iea_product", "iea_flows", target, "Weight"))) %>%
     stats::na.omit() %>%
