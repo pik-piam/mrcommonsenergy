@@ -1,8 +1,8 @@
 Type: Package
 Package: mrcommonsenergy
 Title: Preprocessing functions for REMIND and other energy models (no landuse data)
-Version: 0.3.3
-Date: 2026-06-27
+Version: 0.3.4
+Date: 2026-06-29
 Authors@R: c(
     person("Falk", "Benke", , "benke@pik-potsdam.de", role = c("aut", "cre"))
   )
@@ -19,8 +19,10 @@ Depends:
 Imports:
     data.table,
     dplyr,
+    glue,
     magrittr,
     openxlsx,
+    purrr,
     quitte,
     tibble,
     tidyr,
