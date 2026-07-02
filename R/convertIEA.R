@@ -9,7 +9,6 @@
 #' @return IEA data as MAgPIE object aggregated to country level
 #' @author Anastasis Giannousakis, Renato Rodrigues, Falk Benke
 #' @importFrom dplyr %>% filter
-#' @importFrom tidyr unite
 #'
 convertIEA <- function(x, subtype) {
   if (subtype == "EnergyBalances-2026") {
@@ -97,7 +96,7 @@ convertIEA <- function(x, subtype) {
       returnPathOnly = TRUE, where = "mrcommonsenergy"
     )
 
-    mapping <- read.csv2(mappingfile, stringsAsFactors = TRUE) %>%
+    mapping <- utils::read.csv2(mappingfile, stringsAsFactors = TRUE) %>%
       filter(!(.data$CountryCode %in% getItems(x, dim = 1)))
 
     xadd <- toolAggregate(
@@ -148,8 +147,8 @@ convertIEA <- function(x, subtype) {
           union(getItems(x[, , "ELMAINC"], dim = 3.1)) %>%
           union(getItems(x[, , "HEMAINC"], dim = 3.1)), iea_flows = c("ELMAINE", "ELMAINC", "HEMAINC")
       ) %>%
-        unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-        pull("product.flow"), getItems(x, dim = 3)
+        tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
+        dplyr::pull("product.flow"), getItems(x, dim = 3)
     )
 
     x <- add_columns(x, addnm = missingFlows, dim = 3, fill = 0)
@@ -165,12 +164,12 @@ convertIEA <- function(x, subtype) {
 
     missingFlows <- setdiff(
       expand.grid(
-        iea_product = getItems(x[, , "ELAUTOE"], dim = 3.1) %>% # nolint
+        iea_product = getItems(x[, , "ELAUTOE"], dim = 3.1) %>%
           union(getItems(x[, , "ELAUTOC"], dim = 3.1)) %>%
           union(getItems(x[, , "HEAUTOC"], dim = 3.1)), iea_flows = c("ELAUTOE", "HEAUTOC", "ELAUTOC")
       ) %>%
-        unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
-        pull("product.flow"), getItems(x, dim = 3)
+        tidyr::unite("product.flow", c("iea_product", "iea_flows"), sep = ".") %>%
+        dplyr::pull("product.flow"), getItems(x, dim = 3)
     )
 
     x <- add_columns(x, addnm = missingFlows, dim = 3, fill = 0)

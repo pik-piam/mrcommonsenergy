@@ -32,10 +32,7 @@ readIEA <- function(subtype) {
       ) %>% # exclude latest year with incomplete data
       mutate("ktoe" = as.numeric(.data$ktoe))
 
-    mdata <- as.magpie(data,
-      datacol = dim(data)[2], spatial = which(colnames(data) == "COUNTRY"),
-      temporal = which(colnames(data) == "TIME")
-    )
+    mdata <- as.magpie(data, datacol = 5, spatial = 1, temporal = 4)
   } else if (subtype == "EnergyBalances-latest") {
     data <- NULL
     incomplete <- 2024
@@ -121,7 +118,7 @@ readIEA <- function(subtype) {
     mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 6)
 
   } else if (subtype == "Emissions") {
-    data <- read.csv("emissions2013.csv")
+    data <- utils::read.csv("emissions2013.csv")
     data$COUNTRY <- toolCountry2isocode(data$COUNTRY, warn = FALSE) # nolint
     data <- data[!is.na(data$COUNTRY), ]
     data$TIME <- paste("y", data$TIME, sep = "") # nolint
