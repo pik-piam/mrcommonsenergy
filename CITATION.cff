@@ -4,7 +4,7 @@ type: software
 title: 'mrcommonsenergy: Preprocessing functions for REMIND and other energy models
   (no landuse data)'
 version: 0.3.5
-date-released: '2026-06-29'
+date-released: '2026-07-02'
 abstract: Preprocessing functions for REMIND and other energy models (buildings, transport,
   industry) not using landuse data.
 authors:
