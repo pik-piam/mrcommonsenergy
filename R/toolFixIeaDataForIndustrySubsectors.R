@@ -31,7 +31,6 @@
 #' @importFrom tidyr complete nesting spread
 #' @export
 #'
-#'
 toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   ####
@@ -271,12 +270,12 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   ### blast furnace product use
   data_BLASTFUR_use <- data[, , flow_BLASTFUR_to_replace] %>%
     .cleanData(keepZeros = TRUE) %>%
-    right_join(outputs_BLASTFUR, by = c("iso3c", "year", "product"))
+    dplyr::right_join(outputs_BLASTFUR, by = c("iso3c", "year", "product"))
 
   # outputs are replaced joule-by-joule with inputs, according to the input shares
   # right_join() filters out countries/years that do not use blast furnace
   # products
-  data_BLASTFUR_replacement <- right_join(
+  data_BLASTFUR_replacement <- dplyr::right_join(
     data_BLASTFUR_inputs %>%
       group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
@@ -351,11 +350,11 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   ### coke oven product use
   data_COKEOVS_use <- data[, , flow_COKEOVS_to_replace] %>%
     .cleanData(keepZeros = TRUE) %>%
-    right_join(outputs_COKEOVS, by = c("iso3c", "year", "product"))
+    dplyr::right_join(outputs_COKEOVS, by = c("iso3c", "year", "product"))
 
   # outputs are replaced joule-by-joule with inputs, according to the input shares
   # right_join() filters out countries/years that do not use coke oven products
-  data_COKEOVS_replacement <- right_join(
+  data_COKEOVS_replacement <- dplyr::right_join(
     data_COKEOVS_inputs %>%
       group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
@@ -392,7 +391,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # NATGAS.IRONSTL = 20 - 10 * (20 / 200) = 18 # nolint
   # Note coke oven losses are attributed to IRONSTL flow.
 
-  data_COKEOVS_loss <- right_join(
+  data_COKEOVS_loss <- dplyr::right_join(
     data_COKEOVS_inputs,
 
     data_COKEOVS_outputs %>%
@@ -441,7 +440,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # outputs are replaced joule-by-joule with inputs, according to the input shares
   # right_join() filters out countries/years that do not use blast furnace
   # products
-  data_BLASTFUR_replacement <- right_join(
+  data_BLASTFUR_replacement <- dplyr::right_join(
     data_BLASTFUR_inputs %>%
       group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
@@ -479,7 +478,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # ELECTR.IRONSTL = 10 - 20 * (10 / 100) = 8 # nolint
   # Note blast furnace losses are attributed to IRONSTL
 
-  data_BLASTFUR_loss <- right_join(
+  data_BLASTFUR_loss <- dplyr::right_join(
     data_BLASTFUR_inputs,
 
     data_BLASTFUR_outputs %>%
@@ -517,7 +516,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     data_BLASTFUR_loss %>%
       sum_total_("product", name = "TOTAL")
   ) %>%
-    group_by(!!!syms(setdiff(colnames(.), "value"))) %>%
+    group_by(!!!syms(c("iso3c", "year", "product", "flow"))) %>%
     summarise(value = sum(.data$value), .groups = "drop")
 
   # take original IEA data and subtract flows that contain CO or BF outputs
@@ -552,7 +551,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # define additional summary flows to be recalculated
 
   # nolint start quotes_linter
-  additional_summaryFlows <- tribble(
+  additionalSummaryFlows <- tribble(
     ~summary.flow,       ~flow,
     # Manufacturing Industry
     'MANUFACT',          'IRONSTL',    # iron and steel
@@ -570,7 +569,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   ieaFlows <- ieaFlows %>%
     filter(!is.na(.data$summary.flow)) %>%
-    rbind(additional_summaryFlows)
+    rbind(additionalSummaryFlows)
 
   # sum all flows after CO+BF adjustment to get summary flows as defined in
   # ieaFlows table above
@@ -728,11 +727,11 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
              flow = c(flowsToFix, "INONSPEC"),
              fill = list(value = 0)) %>%
     group_by(.data$iso3c, .data$year, .data$product) %>%
-    right_join(subsectorMapping, by = "flow") %>%
+    dplyr::right_join(subsectorMapping, by = "flow") %>%
     # compute subsector totals
     group_by(.data$subsector, .add = TRUE) %>%
     mutate("subsector.total" = sum(.data$value),
-           "subsector.count" = n()) %>%
+           "subsector.count" = dplyr::n()) %>%
     ungroup(.data$subsector) %>%
     mutate(
       # each subsector consumes at least <threshold> of the total consumption of
