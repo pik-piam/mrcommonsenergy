@@ -23,21 +23,15 @@
 #' @author Michaja Pehl, Felix Schreyer, Falk Benke
 #'
 #' @importFrom assertr not_na assert
-#' @importFrom dplyr anti_join group_by inner_join left_join mutate pull rename
+#' @importFrom dplyr anti_join group_by inner_join left_join mutate rename
 #'     select summarise semi_join everything ungroup
 #' @importFrom quitte character.data.frame sum_total_
 #' @importFrom tibble as_tibble tribble
 #' @importFrom stats na.omit
-#' @importFrom tidyr complete gather nesting spread crossing
+#' @importFrom tidyr complete nesting spread
 #' @export
 #'
-
-# nolint start
-
-# TODO Reduce unnecessary imports
-# TODO Deal with linter warnings
-# TODO Decide where to put this
-
+#'
 toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   ####
@@ -626,19 +620,6 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     .clean_data() %>%
     inner_join(region_mapping, "iso3c")
 
-  ## 2.3 Apply five-year moving average ----
-  # TODO: what to do with this?
-  # data_industry <- data_industry %>%
-  #   group_by(.data$iso3c, .data$region, .data$product, .data$flow) %>%
-  #   arrange(.data$year) %>%
-  #   mutate(value = zoo::rollapply(
-  #     # pad data with two leading and trailing NAs
-  #     data = c(NA, NA, .data$value, NA, NA),
-  #     width = 5,
-  #     # ignoring NAs in mean() stumps the mean on the edges to four/three years
-  #     FUN = function(x) { mean(x, na.rm = TRUE) })) %>%
-  #   ungroup()
-
   # 3. Fix suspicious products in industry ----
 
   ## 3.1 Prepare data to fix ----
@@ -800,4 +781,3 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   return(data)
 }
-# nolint end
