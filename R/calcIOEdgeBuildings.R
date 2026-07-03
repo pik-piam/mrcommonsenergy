@@ -30,7 +30,6 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
   ieaVersion <- match.arg(ieaVersion)
 
 
-
   # READ -----------------------------------------------------------------------
 
   # convert from ktoe to EJ
@@ -40,9 +39,14 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
   ) * 4.1868e-5
 
 
+  # apply IEA data postprocessing
+  # TODO adjust the mapping
+  data <- toolFixIeaDataForIndustrySubsectors(data)
+
 
   # AGGREGATE ------------------------------------------------------------------
 
+  # TODO separate the mapping
   target <- switch(subtype,
     output_EDGE = "EDGEitems",
     output_EDGE_buildings = "EDGE_buildings"
