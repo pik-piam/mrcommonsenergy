@@ -65,23 +65,25 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   ## 1.1 Define functions ----
 
-  . <- NULL
 
-  .clean_data <- function(m, keep_zeros = FALSE) {
+  .cleanData <- function(m, keepZeros = FALSE) {
     m %>%
       as.data.frame() %>%
       as_tibble() %>%
-      select(iso3c = 'Region', year = 'Year', product = 'Data1', flow = 'Data2',
-             value = 'Value') %>%
-      filter(0 != .data$value | keep_zeros) %>%
+      select(iso3c = "Region", year = "Year", product = "Data1", flow = "Data2",
+             value = "Value") %>%
+      filter(0 != .data$value | keepZeros) %>%
       character.data.frame() %>%
       mutate(year = as.integer(.data$year))
   }
 
   ## 1.2 Prepare data and define flows ----
 
+  # nolint start quotes_linter
+  # nolint start object_name_linter
+
   ## flow definitions
-  IEA_flows <- tribble(
+  ieaFlows <- tribble(
     ~summary.flow,   ~flow,
     # Total Primary Energy Production
     'TES',          'INDPROD',    # primary energy production
@@ -161,7 +163,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     'TFC',           'TRNONSPE',   # non-specified transport
     'TFC',           'RESIDENT',   # residential
     'TFC',           'COMMPUB',    # commercial and public services
-    'TFC',           'AGRICULT',   # agriculture/forestry
+    'TFC',           'AGRICULT',   # agriculture and forestry
     'TFC',           'FISHING',    # fishing
     'TFC',           'ONONSPEC',   # non-specified other consumption
     'TFC',           'NONENUSE',   # non-energy use
@@ -193,7 +195,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     # Other Consumption
     'TOTOTHER',      'RESIDENT',   # residential
     'TOTOTHER',      'COMMPUB',    # commercial and public services
-    'TOTOTHER',      'AGRICULT',   # agriculture/forestry
+    'TOTOTHER',      'AGRICULT',   # agriculture and forestry
     'TOTOTHER',      'FISHING',    # fishing
     'TOTOTHER',      'ONONSPEC',   # non-specified other consumption
 
@@ -217,20 +219,22 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     'HEATOUT',       'HEAUTOH'    # autoproducer heat plants
   )
 
-  base_flows <- unique(IEA_flows$flow)
-  summary_flows <- unique(na.omit(IEA_flows$summary.flow))
-  all_flows <- intersect(
-    c(base_flows, summary_flows), getNames(data, dim = "FLOW"))
+  # nolint end quotes_linter
+
+
+  baseFlows <- unique(ieaFlows$flow)
+  summaryFlows <- unique(na.omit(ieaFlows$summary.flow))
+  allFlows <- intersect(c(baseFlows, summaryFlows), getNames(data, dim = "FLOW"))
 
   ### blast furnace flows to be replaced
   # all transformation, energy system and final consumption flows, except for
   # those related to blast furnaces
-  flow_BLASTFUR_to_replace <- setdiff(all_flows, c('EBLASTFUR', 'TBLASTFUR'))
+  flow_BLASTFUR_to_replace <- setdiff(allFlows, c("EBLASTFUR", "TBLASTFUR"))
 
   ### coke oven flows to be replaced
   # all transformation, energy system and final consumption flows, except for
   # those related to coke ovens
-  flow_COKEOVS_to_replace <- setdiff(all_flows, c('ECOKEOVS', 'TCOKEOVS'))
+  flow_COKEOVS_to_replace <- setdiff(allFlows, c("ECOKEOVS", "TCOKEOVS"))
 
   ## 1.3 Replace flows of BF outputs and by inputs into BF ----
 
@@ -239,13 +243,13 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # BF inputs: OVENCOKE.TBLASTFUR = -90, COKCOAL.TBLASTFUR = -10
   # Flows of BF outputs are attributed to inputs via input shares:
   # New BF output flows
-  # OVENCOKE.MAINELEC = -20 * (90 / 100) = -18
-  # COKCOAL.MAINELEC = -20 * (10 / 100) = -2
+  # OVENCOKE.MAINELEC = -20 * (90 / 100) = -18 # nolint
+  # COKCOAL.MAINELEC = -20 * (10 / 100) = -2 # nolint
 
   # all products in/out of blast furnace transformation and energy demand, except
   # summary flows 'TOTAL' and 'MRENEW'
   data_BLASTFUR <- data[, , c("EBLASTFUR", "TBLASTFUR")][, , c("TOTAL", "MRENEW"), invert = TRUE] %>%
-    .clean_data() %>%
+    .cleanData() %>%
     group_by(!!!syms(c("iso3c", "year", "product"))) %>%
     summarise(value = sum(.data$value), .groups = "drop")
 
@@ -262,36 +266,36 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   ### blast furnace output products
   # products blast furnaces supply to other flows
   outputs_BLASTFUR <- data_BLASTFUR_outputs %>%
-    select(-'value')
+    select(-"value")
 
   ### blast furnace product use
   data_BLASTFUR_use <- data[, , flow_BLASTFUR_to_replace] %>%
-    .clean_data(keep_zeros = TRUE) %>%
-    right_join(outputs_BLASTFUR, by = c('iso3c', 'year', 'product'))
+    .cleanData(keepZeros = TRUE) %>%
+    right_join(outputs_BLASTFUR, by = c("iso3c", "year", "product"))
 
   # outputs are replaced joule-by-joule with inputs, according to the input shares
   # right_join() filters out countries/years that do not use blast furnace
   # products
   data_BLASTFUR_replacement <- right_join(
     data_BLASTFUR_inputs %>%
-      group_by(!!!syms(c('iso3c', 'year'))) %>%
+      group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
       ungroup() %>%
-      select(-'value'),
+      select(-"value"),
 
     data_BLASTFUR_use %>%
-      select(-'product'),
+      select(-"product"),
 
-    c('iso3c', 'year')
+    c("iso3c", "year")
   ) %>%
     # assume that countries/years that have no inputs into blast furnaces,
     # also have no outputs and use of blast furnace products (e.g. ISR 1973)
     filter(!is.na(.data$product)) %>%
     assert(not_na, everything(),
-           description = 'Only valid blast furnace replacement data') %>%
+           description = "Only valid blast furnace replacement data") %>%
     mutate(value = .data$value * .data$factor) %>%
-    group_by(!!!syms(c('iso3c', 'year', 'product', 'flow'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop')
+    group_by(!!!syms(c("iso3c", "year", "product", "flow"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop")
 
   ## 1.4 Replace flwos of CO outputs by inputs to CO ----
 
@@ -300,13 +304,13 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # CO inputs: COKCOAL.TCOKEOVS = -180, NATGAS.TCOKEOVS = -20
   # Flows of CO outputs are attributed to inputs via input shares:
   # New Flows CO outputs:
-  # COKCOAL.TBLASTFUR = -10 * (180 / 200) = -9
-  # NATGAS.TBLASTFUR = -10 * (20 / 200) = -1
+  # COKCOAL.TBLASTFUR = -10 * (180 / 200) = -9 # nolint
+  # NATGAS.TBLASTFUR = -10 * (20 / 200) = -1 # nolint
 
   # all products in/out of coke oven transformation and energy demand, except
   # summary flows 'TOTAL' and 'MRENEW'
   data_COKEOVS <- data[, , c("ECOKEOVS", "TCOKEOVS")][, , c("TOTAL", "MRENEW"), invert = TRUE] %>%
-    .clean_data() %>%
+    .cleanData() %>%
     group_by(!!!syms(c("iso3c", "year", "product"))) %>%
     summarise(value = sum(.data$value), .groups = "drop")
 
@@ -320,14 +324,14 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   data_COKEOVS <- bind_rows(
     data_COKEOVS %>%
       anti_join(outputs_BLASTFUR,
-                by = c('iso3c', 'year', 'product')),
+                by = c("iso3c", "year", "product")),
 
     data_BLASTFUR_replacement %>%
-      filter(.data$flow %in% c('ECOKEOVS', 'TCOKEOVS')) %>%
-      select(-'flow')
+      filter(.data$flow %in% c("ECOKEOVS", "TCOKEOVS")) %>%
+      select(-"flow")
   ) %>%
-    group_by(!!!syms(c('iso3c', 'year', 'product'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop')
+    group_by(!!!syms(c("iso3c", "year", "product"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop")
 
   ### coke oven inputs
   # inputs into transformation/energy system are negative
@@ -342,35 +346,35 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   ### coke oven output products
   # products blast furnaces supply to other flows
   outputs_COKEOVS <- data_COKEOVS_outputs %>%
-    select(-'value')
+    select(-"value")
 
   ### coke oven product use
   data_COKEOVS_use <- data[, , flow_COKEOVS_to_replace] %>%
-    .clean_data(keep_zeros = TRUE) %>%
-    right_join(outputs_COKEOVS, by = c('iso3c', 'year', 'product'))
+    .cleanData(keepZeros = TRUE) %>%
+    right_join(outputs_COKEOVS, by = c("iso3c", "year", "product"))
 
   # outputs are replaced joule-by-joule with inputs, according to the input shares
   # right_join() filters out countries/years that do not use coke oven products
   data_COKEOVS_replacement <- right_join(
     data_COKEOVS_inputs %>%
-      group_by(!!!syms(c('iso3c', 'year'))) %>%
+      group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
       ungroup() %>%
-      select(-'value'),
+      select(-"value"),
 
     data_COKEOVS_use %>%
-      select(-'product'),
+      select(-"product"),
 
-    c('iso3c', 'year')
+    c("iso3c", "year")
   ) %>%
     # assume that countries/years that have no inputs into coke ovens,
     # also have no outputs and use of coke oven products
     # (in reality these products may be imported, but we neglect this case)
     filter(!is.na(.data$product)) %>%
     assert(not_na, everything(),
-           description = 'Only valid coke oven replacement data') %>%
+           description = "Only valid coke oven replacement data") %>%
     mutate(value = .data$value * .data$factor) %>%
-    select('iso3c', 'year', 'product', 'flow', 'value')
+    select("iso3c", "year", "product", "flow", "value")
 
   ## 1.5 Calculate CO Losses ----
   # coke oven losses (true losses from ECOKEOVS and transformation energy from
@@ -384,30 +388,30 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # Transformation losses are calculated as difference between
   # inputs and outputs that are attributed to inputs by input shares:
   # Coke oven energy losses:
-  # COKCOAL.IRONSTL = 180 - 10 * (180 / 200) = 171
-  # NATGAS.IRONSTL = 20 - 10 * (20 / 200) = 18
+  # COKCOAL.IRONSTL = 180 - 10 * (180 / 200) = 171 # nolint
+  # NATGAS.IRONSTL = 20 - 10 * (20 / 200) = 18 # nolint
   # Note coke oven losses are attributed to IRONSTL flow.
 
   data_COKEOVS_loss <- right_join(
     data_COKEOVS_inputs,
 
     data_COKEOVS_outputs %>%
-      group_by(!!!syms(c('iso3c', 'year'))) %>%
-      summarise(output = sum(.data$value), .groups = 'drop'),
+      group_by(!!!syms(c("iso3c", "year"))) %>%
+      summarise(output = sum(.data$value), .groups = "drop"),
 
-    c('iso3c', 'year')
+    c("iso3c", "year")
   ) %>%
     # assume that countries/years that have no inputs into coke ovens,
     # also have no transformation losses
     filter(!is.na(.data$product)) %>%
     assert(not_na, everything(),
-           description = 'Only valid coke oven loss data') %>%
-    group_by(!!!syms(c('iso3c', 'year'))) %>%
+           description = "Only valid coke oven loss data") %>%
+    group_by(!!!syms(c("iso3c", "year"))) %>%
     mutate(value = (sum(-.data$value) - .data$output)
            * .data$value / sum(.data$value),
-           flow = 'IRONSTL') %>%
+           flow = "IRONSTL") %>%
     ungroup() %>%
-    select('iso3c', 'year', 'product', 'flow', 'value')
+    select("iso3c", "year", "product", "flow", "value")
 
   ## 1.6 Recalculate BF inputs w/ CO replacements ----
 
@@ -419,14 +423,14 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # furnace inputs by coke oven inputs (here).
   data_BLASTFUR <- bind_rows(
     data_BLASTFUR %>%
-      anti_join(outputs_COKEOVS, by = c('iso3c', 'year', 'product')),
+      anti_join(outputs_COKEOVS, by = c("iso3c", "year", "product")),
 
     data_COKEOVS_replacement %>%
-      filter(.data$flow %in% c('EBLASTFUR', 'TBLASTFUR')) %>%
-      select(-'flow')
+      filter(.data$flow %in% c("EBLASTFUR", "TBLASTFUR")) %>%
+      select(-"flow")
   ) %>%
-    group_by(!!!syms(c('iso3c', 'year', 'product'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop')
+    group_by(!!!syms(c("iso3c", "year", "product"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop")
 
   ### blast furnace inputs
   # inputs into transformation/energy system are negative
@@ -439,24 +443,24 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # products
   data_BLASTFUR_replacement <- right_join(
     data_BLASTFUR_inputs %>%
-      group_by(!!!syms(c('iso3c', 'year'))) %>%
+      group_by(!!!syms(c("iso3c", "year"))) %>%
       mutate(factor = .data$value / sum(.data$value)) %>%
       ungroup() %>%
-      select(-'value'),
+      select(-"value"),
 
     data_BLASTFUR_use %>%
-      select(-'product'),
+      select(-"product"),
 
-    c('iso3c', 'year')
+    c("iso3c", "year")
   ) %>%
     # assume that countries/years that have no inputs into blast furnaces,
     # also have no outputs and use of blast furnace products (e.g. ISR 1973)
     filter(!is.na(.data$product)) %>%
     assert(not_na, everything(),
-           description = 'Only valid blast furnace replacement data') %>%
+           description = "Only valid blast furnace replacement data") %>%
     mutate(value = .data$value * .data$factor) %>%
-    group_by(!!!syms(c('iso3c', 'year', 'product', 'flow'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop')
+    group_by(!!!syms(c("iso3c", "year", "product", "flow"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop")
 
   ## 1.7 Calculate BF Losses ----
   # blast furnace losses (true losses from EBLASTFUR and transformation energy
@@ -471,30 +475,30 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # Transformation losses are calculated as difference between
   # inputs and outputs that are attributed to inputs by input shares:
   # Blast furnace energy losses:
-  # COKCOAL.IRONSTL = 100 - 20 * (90 / 100) = 82
-  # ELECTR.IRONSTL = 10 - 20 * (10 / 100) = 8
+  # COKCOAL.IRONSTL = 100 - 20 * (90 / 100) = 82 # nolint
+  # ELECTR.IRONSTL = 10 - 20 * (10 / 100) = 8 # nolint
   # Note blast furnace losses are attributed to IRONSTL
 
   data_BLASTFUR_loss <- right_join(
     data_BLASTFUR_inputs,
 
     data_BLASTFUR_outputs %>%
-      group_by(!!!syms(c('iso3c', 'year'))) %>%
-      summarise(output = sum(.data$value), .groups = 'drop'),
+      group_by(!!!syms(c("iso3c", "year"))) %>%
+      summarise(output = sum(.data$value), .groups = "drop"),
 
-    c('iso3c', 'year')
+    c("iso3c", "year")
   ) %>%
     # assume that countries/years that have no inputs into blast furnaces,
     # also have no transformation losses
     filter(!is.na(.data$product)) %>%
     assert(not_na, everything(),
-           description = 'Only valid blast furnace loss data') %>%
-    group_by(!!!syms(c('iso3c', 'year'))) %>%
+           description = "Only valid blast furnace loss data") %>%
+    group_by(!!!syms(c("iso3c", "year"))) %>%
     mutate(value = (sum(-.data$value) - .data$output)
            * .data$value / sum(.data$value),
-           flow = 'IRONSTL') %>%
+           flow = "IRONSTL") %>%
     ungroup() %>%
-    select('iso3c', 'year', 'product', 'flow', 'value')
+    select("iso3c", "year", "product", "flow", "value")
 
   ## 1.8 Replace IEA data with steel sector adjustments ----
 
@@ -502,19 +506,19 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   df_CO_BF_adjustment <-  bind_rows(
     # filter already replaced data
     data_COKEOVS_replacement %>%
-      filter(!.data$flow %in% c('EBLASTFUR', 'TBLASTFUR')),
+      filter(!.data$flow %in% c("EBLASTFUR", "TBLASTFUR")),
 
     data_BLASTFUR_replacement %>%
-      filter(!.data$flow %in% c('ECOKEOVS', 'TCOKEOVS')),
+      filter(!.data$flow %in% c("ECOKEOVS", "TCOKEOVS")),
 
     data_COKEOVS_loss %>%
-      sum_total_('product', name = 'TOTAL'),
+      sum_total_("product", name = "TOTAL"),
 
     data_BLASTFUR_loss %>%
-      sum_total_('product', name = 'TOTAL')
+      sum_total_("product", name = "TOTAL")
   ) %>%
-    group_by(!!!syms(setdiff(colnames(.), 'value'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop')
+    group_by(!!!syms(setdiff(colnames(.), "value"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop")
 
   # take original IEA data and subtract flows that contain CO or BF outputs
   # these flows are now accounted for in the CO/BF adjusted data df_CO_BF_adjustment
@@ -524,8 +528,8 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     as.magpie()
   subtract[is.na(subtract)] <- 0
 
-  data[getRegions(subtract), getYears(subtract), getNames(subtract)] <-
-    data[getRegions(subtract), getYears(subtract), getNames(subtract)] - subtract
+  data[getItems(subtract, dim = 1), getYears(subtract), getNames(subtract)] <-
+    data[getItems(subtract, dim = 1), getYears(subtract), getNames(subtract)] - subtract
 
   # add flows from CO/BF adjustment routine df_CO_BF_adjustment
 
@@ -537,8 +541,8 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   newProductFlow <- setdiff(getNames(replace), getNames(data))
   data <- add_columns(data, addnm = newProductFlow, dim = 3, fill = 0)
 
-  data[getRegions(replace), getYears(replace), getNames(replace)] <-
-    data[getRegions(replace), getYears(replace), getNames(replace)] + replace
+  data[getItems(replace, dim = 1), getYears(replace), getNames(replace)] <-
+    data[getItems(replace, dim = 1), getYears(replace), getNames(replace)] + replace
 
   # set coke oven and blast furnace flows to zero
   # as the energy is already accounted for in others flows
@@ -546,7 +550,9 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   # recalculate summary flows after CO+BF adjustment
   # define additional summary flows to be recalculated
-  additional_summary_flows <- tribble(
+
+  # nolint start quotes_linter
+  additional_summaryFlows <- tribble(
     ~summary.flow,       ~flow,
     # Manufacturing Industry
     'MANUFACT',          'IRONSTL',    # iron and steel
@@ -560,26 +566,27 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     'MANUFACT',          'WOODPRO',    # wood and wood products
     'MANUFACT',          'TEXTILES'    # textiles
   )
+  # nolint end quotes_linter
 
-  IEA_flows <- IEA_flows %>%
+  ieaFlows <- ieaFlows %>%
     filter(!is.na(.data$summary.flow)) %>%
-    rbind(additional_summary_flows)
+    rbind(additional_summaryFlows)
 
   # sum all flows after CO+BF adjustment to get summary flows as defined in
-  # IEA_flows table above
+  # ieaFlows table above
 
   sumFlows <- data %>%
-    mselect(FLOW = unique(IEA_flows$flow)) %>%
-    .clean_data() %>%
-    inner_join(IEA_flows, by = 'flow') %>%
-    group_by(!!!syms(c('iso3c', 'year', 'product', 'summary.flow'))) %>%
-    summarise(value = sum(.data$value), .groups = 'drop') %>%
+    mselect(FLOW = unique(ieaFlows$flow)) %>%
+    .cleanData() %>%
+    inner_join(ieaFlows, by = "flow") %>%
+    group_by(!!!syms(c("iso3c", "year", "product", "summary.flow"))) %>%
+    summarise(value = sum(.data$value), .groups = "drop") %>%
     ungroup() %>%
-    rename(flow = 'summary.flow') %>%
+    rename(flow = "summary.flow") %>%
     as.magpie()
 
   sumFlows <- add_columns(sumFlows,
-                          addnm = setdiff(getRegions(data), getRegions(sumFlows)),
+                          addnm = setdiff(getItems(data, dim = 1), getItems(sumFlows, dim = 1)),
                           dim = 1)
   sumFlows <- add_columns(sumFlows,
                           addnm = setdiff(getYears(data), getYears(sumFlows)),
@@ -587,7 +594,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   # replace summary flows with sums of adjusted CO+BF data
   data <- data[, , intersect(getNames(data, dim = "FLOW"),
-                             IEA_flows$summary.flow), invert = TRUE]
+                             ieaFlows$summary.flow), invert = TRUE]
   data <- mbind(data, sumFlows)
 
   data[is.na(data)] <- 0
@@ -596,29 +603,31 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   rm(replace, subtract, sumFlows)
   rm(list = ls(pattern = "^data_"))
 
+  # nolint end object_name_linter
+
   # 2. Prepare Industry Subsector Time Series ----
 
   ## 2.1 Define flows and mappings ----
 
   # all industry subsector flows
-  flows_to_fix <- c(
+  flowsToFix <- c(
     "CHEMICAL", "CONSTRUC", "FOODPRO", "IRONSTL", "MACHINE",
     "MINING", "NONFERR", "NONMET", "PAPERPRO", "TEXTILES",
     "TRANSEQ", "WOODPRO"
   )
 
-  region_mapping <- toolGetMapping(name = "regionmapping_21_EU11.csv",
-                                   type = "regional",
-                                   where = "mappingfolder") %>%
+  regionMapping <- toolGetMapping(name = "regionmapping_21_EU11.csv",
+                                  type = "regional",
+                                  where = "mappingfolder") %>%
     as_tibble() %>%
     select("iso3c" = "CountryCode", "region" = "RegionCode")
 
   ## 2.2 Extend industry subsector time series ----
   # subset of data containing industry subsector products and flows
 
-  data_industry <- data[, , c(flows_to_fix, "TOTIND", "INONSPEC")] %>%
-    .clean_data() %>%
-    inner_join(region_mapping, "iso3c")
+  dataIndustry <- data[, , c(flowsToFix, "TOTIND", "INONSPEC")] %>%
+    .cleanData() %>%
+    inner_join(regionMapping, "iso3c")
 
   # 3. Fix suspicious products in industry ----
 
@@ -626,7 +635,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   # all products that use less then 1 % of total energy outside of non-specified
   # industry are 'suspicious' and will be fixed
-  data_to_fix <- data_industry %>%
+  dataToFix <- dataIndustry %>%
     filter(.data$flow %in% c("TOTIND", "INONSPEC")) %>%
     spread(.data$flow, .data$value) %>%
     mutate("INONSPEC" = ifelse(is.na(.data$INONSPEC), 0, .data$INONSPEC)) %>%
@@ -634,17 +643,17 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     select("iso3c", "region", "year", "product", "TOTIND")
 
   # use all non-suspicious data to calculate regional and global averages
-  data_for_fixing <- anti_join(
-    data_industry %>% filter(.data$flow != "TOTIND"),
-    data_to_fix %>% select(-"TOTIND"),
+  dataForFixing <- anti_join(
+    dataIndustry %>% filter(.data$flow != "TOTIND"),
+    dataToFix %>% select(-"TOTIND"),
     c("iso3c", "region", "year", "product")
   ) %>%
     as_tibble()
 
-  data_for_fixing <- full_join(
+  dataForFixing <- full_join(
 
     # compute global averages
-    data_for_fixing %>%
+    dataForFixing %>%
       group_by(.data$year, .data$product, .data$flow) %>%
       summarise(value = sum(.data$value), .groups = "drop_last") %>%
       mutate("global_share" = .data$value / sum(.data$value)) %>%
@@ -653,11 +662,11 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
       # and expand to all regions
       mutate("region" = NA_character_) %>%
       complete(nesting(!!!syms(c("year", "product", "flow", "global_share"))),
-               region = unique(region_mapping$region)) %>%
+               region = unique(regionMapping$region)) %>%
       filter(!is.na(.data$region)),
 
     # compute regional averages
-    data_for_fixing %>%
+    dataForFixing %>%
       group_by(.data$year, .data$region, .data$product, .data$flow) %>%
       summarise(value = sum(.data$value), .groups = "drop_last") %>%
       mutate("regional_share" = .data$value / sum(.data$value)) %>%
@@ -675,9 +684,9 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     select(-c("regional_share", "global_share", "use_global"))
 
   # calculated fixed data
-  data_industry_fixed <- left_join(
-    data_to_fix,
-    data_for_fixing,
+  dataIndustryFixed <- left_join(
+    dataToFix,
+    dataForFixing,
     c("region", "year", "product")
   ) %>%
     # replace "suspicious" data with averages
@@ -687,15 +696,15 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
     filter(!is.na(.data$value))
 
   # replace fixed industry products, make sure that there are no overlaps
-  data_industry_fixed <- rbind(
+  dataIndustryFixed <- rbind(
     # totals in industry data
-    data_industry %>% filter(.data$flow == "TOTIND"),
+    dataIndustry %>% filter(.data$flow == "TOTIND"),
     # industry products that did not need fixing
-    data_industry %>%
+    dataIndustry %>%
       filter(.data$flow != "TOTIND") %>%
-      anti_join(data_industry_fixed, by = c("iso3c", "region", "year", "product")),
+      anti_join(dataIndustryFixed, by = c("iso3c", "region", "year", "product")),
     # industry products that were fixed
-    data_industry_fixed
+    dataIndustryFixed
   )
 
 
@@ -705,20 +714,21 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   threshold <- 1e-2
 
   # which flow belongs to which subsector?
-  subsector_mapping <- tribble(
+  subsectorMapping <- tribble(
     ~subsector,    ~flow,
     "cement",      "NONMET",
     "chemicals",   "CHEMICAL",
-    "steel",       "IRONSTL") %>%
-    complete(flow = c(flows_to_fix, "INONSPEC"),
+    "steel",       "IRONSTL"
+  ) %>%
+    complete(flow = c(flowsToFix, "INONSPEC"),
              fill = list(subsector = "otherInd"))
 
-  data_industry_fixed <- data_industry_fixed %>%
+  dataIndustryFixed <- dataIndustryFixed %>%
     complete(nesting(!!!syms(c("iso3c", "region", "year", "product"))),
-             flow = c(flows_to_fix, "INONSPEC"),
+             flow = c(flowsToFix, "INONSPEC"),
              fill = list(value = 0)) %>%
     group_by(.data$iso3c, .data$year, .data$product) %>%
-    right_join(subsector_mapping, by = "flow") %>%
+    right_join(subsectorMapping, by = "flow") %>%
     # compute subsector totals
     group_by(.data$subsector, .add = TRUE) %>%
     mutate("subsector.total" = sum(.data$value),
@@ -729,55 +739,56 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
       # each product (with the exception of heat, which is only consumed in the
       #  otherInd subsector)
       "subsector.min" = ifelse("HEAT" == .data$product, 0,
-                             threshold * sum(.data$value)),
+                               threshold * sum(.data$value)),
       # if total subsector consumption is below the minimum, consumption must be
       # added
       "subsector.add" = pmax(0, .data$subsector.min - .data$subsector.total),
       # each flow gets consumption added according to its share in total
       # subsector consumption
       "flow.add" = ifelse(0 != .data$subsector.total,
-                        (.data$subsector.add / .data$subsector.total * .data$value),
-                        .data$subsector.add / .data$subsector.count),
+                          (.data$subsector.add / .data$subsector.total * .data$value),
+                          .data$subsector.add / .data$subsector.count),
       # if the additional flow is zero, consumption has to be subtracted from\
       # this flow, in relation to its share of all flows with
       # more-than-threshold consumption
       "flow.add" = ifelse(0 != .data$flow.add,
                           .data$flow.add,
                           (-sum(.data$flow.add) * .data$value / sum(.data$value[0 == .data$flow.add]))),
-      "value.new" = .data$value + .data$flow.add) %>%
-      ungroup() %>%
-      select("iso3c", "region", "year", "product", "flow", "value" = "value.new")
+      "value.new" = .data$value + .data$flow.add
+    ) %>%
+    ungroup() %>%
+    select("iso3c", "region", "year", "product", "flow", "value" = "value.new")
 
   ## 3.3 Replace and append fixed data ----
-  data_industry_fixed_overwrite <- data_industry_fixed %>%
-    semi_join(data_industry, c("iso3c", "region", "year", "product", "flow")) %>%
+  dataIndustryFixedOverwrite <- dataIndustryFixed %>%
+    semi_join(dataIndustry, c("iso3c", "region", "year", "product", "flow")) %>%
     select("iso3c", "year", "product", "flow", "value") %>%
     as.magpie(spatial = 1, temporal = 2, datacol = 5)
 
-  data_industry_fixed_overwrite[is.na(data_industry_fixed_overwrite)] <- 0
+  dataIndustryFixedOverwrite[is.na(dataIndustryFixedOverwrite)] <- 0
 
-  data_industry_fixed_append <- data_industry_fixed %>%
-    anti_join(data_industry, c("iso3c", "region", "year", "product", "flow")) %>%
+  dataIndustryFixedAppend <- dataIndustryFixed %>%
+    anti_join(dataIndustry, c("iso3c", "region", "year", "product", "flow")) %>%
     select("iso3c", "year", "product", "flow", "value") %>%
     complete(nesting(!!!syms(c("product", "flow"))),
-             iso3c = getRegions(data),
+             iso3c = getItems(data, dim = 1),
              year = getYears(data, as.integer = TRUE),
              fill = list(value = 0)) %>%
     select("iso3c", "year", "product", "flow", "value") %>%
     as.magpie(spatial = 1, temporal = 2, datacol = 5)
 
-  data[getRegions(data_industry_fixed_overwrite),
-       getYears(data_industry_fixed_overwrite),
-       getNames(data_industry_fixed_overwrite)] <- data_industry_fixed_overwrite
+  data[getItems(dataIndustryFixedOverwrite, dim = 1),
+       getYears(dataIndustryFixedOverwrite),
+       getNames(dataIndustryFixedOverwrite)] <- dataIndustryFixedOverwrite
 
 
-  existing_names <- intersect(getNames(data), getNames(data_industry_fixed_append))
-  added_names <- setdiff(getNames(data_industry_fixed_append), getNames(data))
-  tmp <- data[, , existing_names]
+  existingNames <- intersect(getNames(data), getNames(dataIndustryFixedAppend))
+  addedNames <- setdiff(getNames(dataIndustryFixedAppend), getNames(data))
+  tmp <- data[, , existingNames]
   tmp[is.na(tmp)] <- 0
-  data[, , existing_names] <- tmp + data_industry_fixed_append[, , existing_names]
+  data[, , existingNames] <- tmp + dataIndustryFixedAppend[, , existingNames]
 
-  data <- mbind(data, data_industry_fixed_append[, , added_names])
+  data <- mbind(data, dataIndustryFixedAppend[, , addedNames])
 
   return(data)
 }
