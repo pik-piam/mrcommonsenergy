@@ -31,21 +31,11 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
 
 
   # READ -----------------------------------------------------------------------
-
-  # convert from ktoe to EJ
-  data <- switch(ieaVersion,
-    default = readSource("IEA", subtype = "EnergyBalances"),
-    latest  = readSource("IEA", subtype = "EnergyBalances-latest")
-  ) * 4.1868e-5
-
-
-  # apply IEA data postprocessing
-  # TODO adjust the mapping # nolint
-  data <- toolFixIeaDataForIndustrySubsectors(data)
-
+  data <- calcOutput("IeaEnergyBalances", ieaVersion = ieaVersion, aggregate = FALSE)
 
   # AGGREGATE ------------------------------------------------------------------
 
+  # TODO adjust the mapping # nolint
   # TODO separate the mapping # nolint
   target <- switch(subtype,
     output_EDGE = "EDGEitems",
