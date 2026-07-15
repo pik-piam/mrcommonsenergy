@@ -787,7 +787,9 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   tmp[is.na(tmp)] <- 0
   data[, , existingNames] <- tmp + dataIndustryFixedAppend[, , existingNames]
 
-  data <- mbind(data, dataIndustryFixedAppend[, , addedNames])
+  if (length(addedNames > 0)) {
+    data <- mbind(data, dataIndustryFixedAppend[, , addedNames])
+  }
 
   return(data)
 }
