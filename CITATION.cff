@@ -3,8 +3,8 @@ message: If you use this software, please cite it using the metadata from this f
 type: software
 title: 'mrcommonsenergy: Preprocessing functions for REMIND and other energy models
   (no landuse data)'
-version: 0.3.5
-date-released: '2026-07-02'
+version: 0.4.0
+date-released: '2026-07-16'
 abstract: Preprocessing functions for REMIND and other energy models (buildings, transport,
   industry) not using landuse data.
 authors:
