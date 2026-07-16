@@ -66,7 +66,7 @@ convertEdgeBuildings <- function(x, subtype, subset) {
     # Transform weights obtained from calcIOEdgeBuildings to weights compatible with EDGE buildings ----
     structureMapping <- toolGetMapping(
       name = "mappingWeightConvertEDGE.csv",
-      type = "sectoral", where = "mrremind"
+      type = "sectoral", where = "mrcommonsenergy"
     )
 
     if (!all(unique(structureMapping$EDGE_buildings_items) %in% getNames(x, dim = "item"))) {
