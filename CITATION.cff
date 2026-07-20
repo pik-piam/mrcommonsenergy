@@ -3,14 +3,20 @@ message: If you use this software, please cite it using the metadata from this f
 type: software
 title: 'mrcommonsenergy: Preprocessing functions for REMIND and other energy models
   (no landuse data)'
-version: 0.4.0
-date-released: '2026-07-16'
+version: 0.4.1
+date-released: '2026-07-20'
 abstract: Preprocessing functions for REMIND and other energy models (buildings, transport,
   industry) not using landuse data.
 authors:
 - family-names: Benke
   given-names: Falk
   email: benke@pik-potsdam.de
+- family-names: Hasse
+  given-names: Robin
+- family-names: Rodrigues
+  given-names: Renato
+- family-names: Schreyer
+  given-names: Felix
 license: LGPL-3.0
 repository-code: https://github.com/pik-piam/mrcommonsenergy
 
