@@ -4,11 +4,18 @@
 \alias{readUNFCCC}
 \title{Read UNFCCC data}
 \usage{
-readUNFCCC()
+readUNFCCC(subtype = "annex-1")
+}
+\arguments{
+\item{subtype}{Can be either "annex-1" (default) or "non-annex-1"
+
+filter temporary lock files
+finds out if a string is a 4-digit year
+finds out if a string is only capital letters A-Z}
 }
 \description{
 Read UNFCCC data
 }
 \author{
-Falk Benke
+Falk Benke, Simon Krogmann
 }
