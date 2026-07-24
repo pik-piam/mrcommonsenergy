@@ -6,9 +6,17 @@
 #'
 #' @return A [`magpie`][magclass::magclass] object.
 #'
-#' @author Falk Benke
+#' @author Falk Benke, Simon Krogmann
 #'
-convertUNFCCC <- function(x) {
-  x <- toolCountryFill(x, verbosity = 2, no_remove_warning = "EUA")
-  return(x)
+#' @param subtype Can be either "annex-1" (default) or "non-annex-1"
+#'
+convertUNFCCC <- function(x, subtype = "annex-1") {
+  if (subtype == "annex-1") {
+    result <- toolCountryFill(x, verbosity = 2, no_remove_warning = "EUA")
+  } else if (subtype == "non-annex-1") {
+    result <- toolCountryFill(x, verbosity = 2)
+  } else {
+    stop("Unsupported subtype: ", subtype)
+  }
+  return(result)
 }
