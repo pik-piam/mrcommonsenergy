@@ -36,7 +36,6 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
   # AGGREGATE ------------------------------------------------------------------
 
   # TODO adjust the mapping # nolint
-  # TODO separate the mapping # nolint
   target <- switch(subtype,
     output_EDGE = "EDGEitems",
     output_EDGE_buildings = "EDGE_buildings"
