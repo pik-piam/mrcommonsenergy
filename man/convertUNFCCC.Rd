@@ -4,11 +4,13 @@
 \alias{convertUNFCCC}
 \title{Convert UNFCCC data}
 \usage{
-convertUNFCCC(x)
+convertUNFCCC(x, subtype = "annex-1")
 }
 \arguments{
 \item{x}{A \code{\link[magclass:magclass]{magpie}} object returned from
 \code{\link[=readUNFCCC]{readUNFCCC()}}.}
+
+\item{subtype}{Can be either "annex-1" (default) or "non-annex-1"}
 }
 \value{
 A \code{\link[magclass:magclass]{magpie}} object.
@@ -17,5 +19,5 @@ A \code{\link[magclass:magclass]{magpie}} object.
 Convert UNFCCC data
 }
 \author{
-Falk Benke
+Falk Benke, Simon Krogmann
 }
