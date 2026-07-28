@@ -52,7 +52,6 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
   # 2. Prepare Industry Subsectors Timeseries
   #   2.1 Define flows and mappings
   #   2.2 Extend industry subsector timeseries
-  #   2.3 Apply five-year moving average
   # 3. Fix suspicious industry products
   #   3.1 Prepare data to fix
   #   3.2 Redistribute products to industry-related flows
@@ -632,7 +631,7 @@ toolFixIeaDataForIndustrySubsectors <- function(data) {
 
   ## 3.1 Prepare data to fix ----
 
-  # all products that use less then 1 % of total energy outside of non-specified
+  # all products that use less than 1 % of total energy outside of non-specified
   # industry are 'suspicious' and will be fixed
   dataToFix <- dataIndustry %>%
     filter(.data$flow %in% c("TOTIND", "INONSPEC")) %>%
