@@ -53,8 +53,8 @@ readIEA <- function(subtype) {
           .data$UNIT %in% c("KTOE", "GWH"),
           .data$TIME != incomplete # exclude latest year with incomplete data
         ) %>%
-        mutate("VALUE" = as.numeric(.data$VALUE))
-
+        mutate("VALUE" = as.numeric(.data$VALUE)) %>%
+        select(-"UNIT")
 
       tmp$COUNTRY <- toolCountry2isocode(tmp$COUNTRY, warn = FALSE, mapping = c(
         "BURKINAFASO" = "BFA",
@@ -79,7 +79,7 @@ readIEA <- function(subtype) {
       rm(tmp)
     }
 
-    mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 6)
+    mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 5)
 
   } else if (subtype == "EnergyBalances-2026") {
     data <- NULL
