@@ -67,17 +67,9 @@ convertIEA <- function(x, subtype) {
     x["SRB", , ] <- x["SRB", , ] + x1
     x <- x["KOS", , , invert = TRUE]
 
-    if (subtype == "EnergyBalances") {
-      # convert electricity outputs (unit conversion between ktoe and GWh, not
-      # needed in 2025 edition of data)
-      x[, , c("ELOUTPUT", "ELMAINE", "ELAUTOE", "ELMAINC", "ELAUTOC")] <- 0.0859845 *
-        x[, , c("ELOUTPUT", "ELMAINE", "ELAUTOE", "ELMAINC", "ELAUTOC")]
-    } else if (subtype == "EnergyBalances-latest") {
-      # just drop unit dimension, as all values are already in intended unit:
-      # GWh for "ELOUTPUT", "ELMAINE", "ELAUTOE", "ELMAINC", "ELAUTOC" and ktoe for
-      # everything else
-      x <- magclass::collapseDim(x, dim = 3.3)
-    }
+    # convert electricity outputs (unit conversion between ktoe and GWh)
+    x[, , c("ELOUTPUT", "ELMAINE", "ELAUTOE", "ELMAINC", "ELAUTOC")] <- 0.0859845 *
+      x[, , c("ELOUTPUT", "ELMAINE", "ELAUTOE", "ELMAINC", "ELAUTOC")]
 
     # calculate weight to be used for regional disaggregations
     wp <- calcOutput("Population", scenario = "SSP2", aggregate = FALSE)[, 2010, ]
