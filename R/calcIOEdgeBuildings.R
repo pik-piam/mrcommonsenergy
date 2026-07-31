@@ -17,13 +17,13 @@
 #' a <- calcOutput("IOEdgeBuildings", subtype = "output_EDGE_buildings")
 #' }
 #'
-#' @importFrom dplyr %>% .data all_of filter select
+#' @importFrom dplyr all_of filter select
 #' @importFrom tidyr unite
 #' @importFrom madrat readSource toolGetMapping toolAggregate calcOutput
 #' @importFrom utils read.csv2
 #' @importFrom magclass as.magpie getNames mselect
 
-calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_buildings"),
+calcIOEdgeBuildings <- function(subtype = c("output_EDGE_ononspec", "output_EDGE_buildings"),
                                 ieaVersion = c("default", "latest")) {
 
   subtype <- match.arg(subtype)
@@ -36,8 +36,8 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
   # AGGREGATE ------------------------------------------------------------------
 
   target <- switch(subtype,
-    output_EDGE = "EDGEitems",
-    output_EDGE_buildings = "EDGE_buildings"
+                   output_EDGE_ononspec = "EDGE_ononspec",
+                   output_EDGE_buildings = "EDGE_buildings"
   )
 
   mapping <- toolGetMapping(type = "sectoral",
@@ -59,18 +59,13 @@ calcIOEdgeBuildings <- function(subtype = c("output_EDGE", "output_EDGE_building
                         rel = mapping, from = "product.flow", to = "target", dim = 3)
   getSets(data)[3] <- "d3"
 
-
-
   # SPLIT BIOMASS --------------------------------------------------------------
+  if (subtype == "output_EDGE_buildings") {
+    gdppop <- calcOutput("GDPpc", scenario = "SSP2", average2020 = FALSE, aggregate = FALSE) %>%
+      collapseNames()
 
-  gdppop <- calcOutput("GDPpc", scenario = "SSP2", average2020 = FALSE, aggregate = FALSE) %>%
-    collapseNames()
-
-  data <- switch(subtype,
-    output_EDGE = toolSplitBiomass(data, gdppop, split = "feresbioshare",
-                                   into = c("feresbiotrad", "feresbiomod")),
-    output_EDGE_buildings = toolSplitBiomass(data, gdppop, split = "bioshare")
-  )
+    data <- toolSplitBiomass(data, gdppop, split = "bioshare")
+  }
 
   return(list(x = data,
               weight = NULL,
