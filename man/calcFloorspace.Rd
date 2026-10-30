@@ -4,12 +4,14 @@
 \alias{calcFloorspace}
 \title{Floor space in buildings}
 \usage{
-calcFloorspace(scenario, onlyTotal = FALSE)
+calcFloorspace(scenario, onlyTotal = FALSE, perCap = FALSE)
 }
 \arguments{
 \item{scenario}{A string (or vector of strings) designating the scenario(s) to be returned.}
 
 \item{onlyTotal}{boolean, only give total instead of sub-sectoral floor space}
+
+\item{perCap}{boolean, give floor space per capita instead of absolute floor space}
 }
 \value{
 MAgPIE object with buildings floor space
