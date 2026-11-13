@@ -13,7 +13,6 @@ importFrom(assertr,
   not_na
 )
 importFrom(dplyr,
-  "%>%",
   across,
   all_of,
   anti_join,

@@ -5,9 +5,15 @@
 #' @author Falk Benke
 calcIeaEnergyBalances <- function(ieaVersion) {
 
-  stopifnot(ieaVersion %in% c("default", "latest"))
+  stopifnot(ieaVersion %in% c("default", "latest", "EnergyBalances-2025"))
 
-  ieaSubtype <- if (ieaVersion == "default") "EnergyBalances" else "EnergyBalances-latest"
+  if (ieaVersion == "default") {
+    ieaSubtype <- "EnergyBalances"
+  } else if (ieaVersion == "latest") {
+    ieaSubtype <- "EnergyBalances-latest"
+  } else {
+    ieaSubtype <- ieaVersion
+  }
 
   # read in data and convert from ktoe to EJ
   x <- readSource("IEA", subtype = ieaSubtype) * 4.1868e-5

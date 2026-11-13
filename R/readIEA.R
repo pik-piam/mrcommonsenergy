@@ -5,8 +5,8 @@
 #' @param subtype data subtype. Either "EnergyBalances", "EnergyBalances-latest", or "Emissions".
 #' - "EnergyBalances": IEA energy balances until 2022 (2023 incomplete), data updated in Sep 2024,
 #' the current default for REMIND input data
-#' - "EnergyBalances-latest": IEA energy balances until 2023 (2024 incomplete), data updated in Aug 2025,
-#' - "EnergyBalances-2026": incomplete IEA energy balances update from Apr 2026,
+#' - "EnergyBalances-2025": IEA energy balances until 2023 (2024 incomplete), data updated in Aug 2025,
+#' - "EnergyBalances-latest": IEA energy balances update from July 2026 (2025 incomplete), data updated in Nov 2026.
 #' @return magpie object of the IEA
 #' @author Anastasis Giannousakis, Lavinia Baumstark, Renato Rodrigues, Falk Benke
 #'
@@ -33,7 +33,7 @@ readIEA <- function(subtype) {
       mutate("ktoe" = as.numeric(.data$ktoe))
 
     mdata <- as.magpie(data, datacol = 5, spatial = 1, temporal = 4)
-  } else if (subtype == "EnergyBalances-latest") {
+  } else if (subtype == "EnergyBalances-2025") {
     data <- NULL
     incomplete <- 2024
 
@@ -64,7 +64,6 @@ readIEA <- function(subtype) {
         "NEWZEALAND" = "NZL",
         "SAUDIARABIA" = "SAU",
         "SOUTHAFRICA" = "ZAF",
-        "WORLD" = "GLO",
         "F_USSR" = "SUN",
         "F_YUGOSLAVIA" = "YUG",
         "OTH_NON_OECDAFR" = "IAF",
@@ -81,13 +80,27 @@ readIEA <- function(subtype) {
 
     mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 5)
 
-  } else if (subtype == "EnergyBalances-2026") {
+    # remove product flows with all zeros
+    pf_remove <- magpply(mdata, function(y) all(is.na(y) | y == 0), MARGIN = 3)
+    mdata <- mdata[, , !pf_remove]
+
+  } else if (subtype == "EnergyBalances-latest") {
+
     data <- NULL
     incomplete <- 2025
 
-    files <- list.files("IEA-Energy-Balances-2026-Apr", pattern = "*.csv", full.names = TRUE)
+    files <- list.files("IEA-Energy-Balances-2026", pattern = "*.csv", full.names = TRUE)
 
     for (f in files) {
+
+      ignoreCountries <- c(
+        "AFRICA_UN", "AMERICAS_UN", "ASEAN", "ASIA_UN", "CHINAREG", "EU27", "EU28",
+        "EUROPE_UN", "F_USSR_TOTAL", "F_YUGO_TOTAL", "G20", "G7", "G8",
+        "IEAFAMILY", "IEATOT", "NON_OECDAFR", "NON_OECDAM", "NON_OECDAO_X_CHINA",
+        "NON_OECDEURAS", "NON_OECDME", "NON_OECDTOT", "OCEANIA_UN", "OECDAM",
+        "OECDAO", "OECDEUR", "OECDTOT", "OPEC", "WORLDAV", "WORLDMAR", "WORLD"
+      )
+
       tmp <- data.table::fread(
         file = f,
         select = c(3, 7, 5, 11, 17, 15),
@@ -97,34 +110,55 @@ readIEA <- function(subtype) {
         showProgress = FALSE
       ) %>%
         filter(
+          !is.na(.data$VALUE),
+          !.data$COUNTRY %in% ignoreCountries,
           .data$UNIT %in% c("KTOE", "GWH"),
           .data$TIME != incomplete # exclude latest year with incomplete data
         ) %>%
-        mutate("VALUE" = as.numeric(.data$VALUE))
+        mutate("VALUE" = as.numeric(.data$VALUE)) %>%
+        # there are duplicates in the source data, e.g AUS|1960|BIOFUEL_NONSPEC.ELMAINE.GWH
+        distinct() %>%
+        # we assume that the source data is all in KTOE, even though labelled as GWH
+        select(-"UNIT")
+
+      if (any(duplicated(tmp))) {
+        stop()
+      }
+
+      customRegionMappings <- c(
+        "BURKINAFASO" = "BFA",
+        "CONGO_DRC" = "COD",
+        "CONGO_REPUB" = "COG",
+        "F_USSR" = "SUN",
+        "F_YUGOSLAVIA" = "YUG",
+        "DOMINICANREP" = "DOM",
+        "NEWZEALAND" = "NZL",
+        "SAUDIARABIA" = "SAU",
+        "SOUTHAFRICA" = "ZAF",
+        # Other non-OECD Africa (previously IAF)
+        "OTH_NON_OECDAFR" = "OTH_NON_OECDAFR",
+        # Other non-OECD Americas (previously ILA)
+        "OTH_NON_OECDAM" = "OTH_NON_OECDAM",
+        # Other non-OECD Africa (previously IAS)
+        "OTH_NON_OECDAO" = "OTH_NON_OECDAO"
+      )
 
       tmp$COUNTRY <- madrat::toolCountry2isocode(tmp$COUNTRY,
         warn = TRUE,
-        mapping = c(
-          "NEWZEALAND" = "NZL",
-          "SOUTHAFRICA" = "ZAF"
-        )
+        mapping = customRegionMappings
       )
-      tmp <- tmp %>%
-        filter(!is.na(.data$COUNTRY), !is.na(.data$VALUE))
+
       data <- rbind(data, tmp)
       rm(tmp)
     }
 
-    mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 6)
+    mdata <- as.magpie(data, spatial = 1, temporal = 4, datacol = 5)
+    rm(data)
 
-  } else if (subtype == "Emissions") {
-    data <- utils::read.csv("emissions2013.csv")
-    data$COUNTRY <- toolCountry2isocode(data$COUNTRY, warn = FALSE) # nolint
-    data <- data[!is.na(data$COUNTRY), ]
-    data$TIME <- paste("y", data$TIME, sep = "") # nolint
-    if (names(data)[[5]] == "MtCO2") data <- data[!is.na(data$MtCO2), ]
-    if (names(data)[[5]] == "MtCO2") data$MtCO2 <- suppressWarnings(as.numeric(data$MtCO2)) # nolint
-    mdata <- as.magpie(data, datacol = dim(data)[2])
+    # remove product flows with all zeros
+    pf_remove <- magpply(mdata, function(y) all(is.na(y) | y == 0), MARGIN = 3)
+    mdata <- mdata[, , !pf_remove]
+
   } else {
     stop("Invalid subtype!")
   }
