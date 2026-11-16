@@ -11,8 +11,8 @@ readIEA(subtype)
 \itemize{
 \item "EnergyBalances": IEA energy balances until 2022 (2023 incomplete), data updated in Sep 2024,
 the current default for REMIND input data
-\item "EnergyBalances-latest": IEA energy balances until 2023 (2024 incomplete), data updated in Aug 2025,
-\item "EnergyBalances-2026": incomplete IEA energy balances update from Apr 2026,
+\item "EnergyBalances-2025": IEA energy balances until 2023 (2024 incomplete), data updated in Aug 2025,
+\item "EnergyBalances-latest": IEA energy balances update from July 2026 (2025 incomplete), data updated in Nov 2026.
 }}
 }
 \value{

@@ -8,6 +8,6 @@ toolGetIEAYear <- function(ieaVersion) {
   if (ieaVersion == "default") {
     return(2024)
   } else {
-    return(2025)
+    return(2026)
   }
 }

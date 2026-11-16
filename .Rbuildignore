@@ -14,3 +14,5 @@
 ^tests/.lintr$
 ^CODE_STYLE\.md$
 ^CONTRIBUTING\.md$
+^CLAUDE.md$
+^AGENTS.md$

@@ -6,7 +6,7 @@
 \usage{
 calcIOEdgeBuildings(
   subtype = c("output_EDGE_ononspec", "output_EDGE_buildings"),
-  ieaVersion = c("default", "latest")
+  ieaVersion = c("default", "latest", "EnergyBalances-2025")
 )
 }
 \arguments{

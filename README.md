@@ -1,6 +1,6 @@
 # Preprocessing functions for REMIND and other energy models (no landuse data)
 
-R package **mrcommonsenergy**, version **0.6.2**
+R package **mrcommonsenergy**, version **0.7.0**
 
    [![R build status](https://github.com/pik-piam/mrcommonsenergy/workflows/check/badge.svg)](https://github.com/pik-piam/mrcommonsenergy/actions) [![codecov](https://codecov.io/gh/pik-piam/mrcommonsenergy/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/mrcommonsenergy) [![r-universe](https://pik-piam.r-universe.dev/badges/mrcommonsenergy)](https://pik-piam.r-universe.dev/builds)
 
@@ -38,7 +38,7 @@ In case of questions / problems please contact Falk Benke <benke@pik-potsdam.de>
 
 To cite package **mrcommonsenergy** in publications use:
 
-Benke F, Hasse R, Krogmann S, Rodrigues R, Schreyer F (2026). "mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)." Version: 0.6.2, <https://github.com/pik-piam/mrcommonsenergy>.
+Benke F, Hasse R, Krogmann S, Rodrigues R, Schreyer F (2026). "mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)." Version: 0.7.0, <https://github.com/pik-piam/mrcommonsenergy>.
 
 A BibTeX entry for LaTeX users is
 
@@ -46,9 +46,9 @@ A BibTeX entry for LaTeX users is
 @Misc{,
   title = {mrcommonsenergy: Preprocessing functions for REMIND and other energy models (no landuse data)},
   author = {Falk Benke and Robin Hasse and Simon Krogmann and Renato Rodrigues and Felix Schreyer},
-  date = {2026-11-12},
+  date = {2026-11-16},
   year = {2026},
   url = {https://github.com/pik-piam/mrcommonsenergy},
-  note = {Version: 0.6.2},
+  note = {Version: 0.7.0},
 }
 ```
